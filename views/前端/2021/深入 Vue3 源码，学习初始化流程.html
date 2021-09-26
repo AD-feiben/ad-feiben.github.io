@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>深入 Vue3 源码，学习初始化流程 | 前端develop</title>
+    <meta name="generator" content="VuePress 1.8.2">
+    <link rel="icon" href="/favicon.ico">
+    <link rel="icon" href="/imgs/logo.png">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" href="/imgs/logo.png">
+    <link rel="mask-icon" href="/icons/safari-pinned-tab.svg" color="#3eaf7c">
+    <script type="text/javascript" src="/js/push.js"></script>
+    <script charset="utf-8" src="https://hm.baidu.com/hm.js?c03dc728c7c7aea53311f86758b041c7"></script>
+    <script charset="utf-8" src="https://readmore.openwrite.cn/js/readmore.js"></script>
+    <script defer="defer" async="async" src="https://cpro.baidustatic.com/cpro/ui/cm.js"></script>
+    <meta name="description" content="搭建调试环境
+为了弄清楚 Vue3 的初始化，建议先克隆 Vue3 到本地。
+git clone https://github.com/vuejs/vue-next.git
+
+1安装依赖
+npm install
+
+1">
+    <meta name="image" content="https://feiben-1253434158.cos.ap-guangzhou.myqcloud.com/blogimage-20210825163424230.png">
+    <meta name="twitter:title" content="深入 Vue3 源码，学习初始化流程">
+    <meta name="twitter:description" content="搭建调试环境
+为了弄清楚 Vue3 的初始化，建议先克隆 Vue3 到本地。
+git clone https://github.com/vuejs/vue-next.git
+
+1安装依赖
+npm install
+
+1">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="https://feiben-1253434158.cos.ap-guangzhou.myqcloud.com/blogimage-20210825163424230.png">
+    <meta name="twitter:url" content="https://www.fedevelop.cn/views/%E5%89%8D%E7%AB%AF/2021/%E6%B7%B1%E5%85%A5%20Vue3%20%E6%BA%90%E7%A0%81%EF%BC%8C%E5%AD%A6%E4%B9%A0%E5%88%9D%E5%A7%8B%E5%8C%96%E6%B5%81%E7%A8%8B.html">
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="深入 Vue3 源码，学习初始化流程">
+    <meta property="og:description" content="搭建调试环境
+为了弄清楚 Vue3 的初始化，建议先克隆 Vue3 到本地。
+git clone https://github.com/vuejs/vue-next.git
+
+1安装依赖
+npm install
+
+1">
+    <meta property="og:image" content="https://feiben-1253434158.cos.ap-guangzhou.myqcloud.com/blogimage-20210825163424230.png">
+    <meta property="og:url" content="https://www.fedevelop.cn/views/%E5%89%8D%E7%AB%AF/2021/%E6%B7%B1%E5%85%A5%20Vue3%20%E6%BA%90%E7%A0%81%EF%BC%8C%E5%AD%A6%E4%B9%A0%E5%88%9D%E5%A7%8B%E5%8C%96%E6%B5%81%E7%A8%8B.html">
+    <meta property="og:site_name" content="前端develop">
+    <meta property="article:published_time" content="2021-08-26T00:00:00.000Z">
+    <meta property="article:tag" content="Vue3">
+    <meta itemprop="name" content="深入 Vue3 源码，学习初始化流程">
+    <meta itemprop="description" content="搭建调试环境
+为了弄清楚 Vue3 的初始化，建议先克隆 Vue3 到本地。
+git clone https://github.com/vuejs/vue-next.git
+
+1安装依赖
+npm install
+
+1">
+    <meta itemprop="image" content="https://feiben-1253434158.cos.ap-guangzhou.myqcloud.com/blogimage-20210825163424230.png">
+    <meta name="keywords" content="前端develop,博客分享,前端技术,Vue.js,JavaScript,HTML,H5,副业">
+    <meta name="baidu_union_verify" content="d9618350592112eff127ae228cba0df0">
+    <meta name="360-site-verification" content="56d456e576ca6c5b90493dcda7f96be4">
+    <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+    <meta name="theme-color" content="#3eaf7c">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="msapplication-TileColor" content="#000000">
+    
+    <link rel="preload" href="/assets/css/0.styles.b20cb76a.css" as="style"><link rel="preload" href="/assets/js/app.cc9ea677.js" as="script"><link rel="preload" href="/assets/js/3.590e791e.js" as="script"><link rel="preload" href="/assets/js/1.326f0c13.js" as="script"><link rel="preload" href="/assets/js/35.e1003365.js" as="script"><link rel="preload" href="/assets/js/9.2501c995.js" as="script"><link rel="preload" href="/assets/js/10.a9f4d64d.js" as="script"><link rel="prefetch" href="/assets/js/11.2e7fadd3.js"><link rel="prefetch" href="/assets/js/12.b5984b6f.js"><link rel="prefetch" href="/assets/js/13.981a999b.js"><link rel="prefetch" href="/assets/js/14.663a32ce.js"><link rel="prefetch" href="/assets/js/15.fdcdaeb0.js"><link rel="prefetch" href="/assets/js/16.02590bda.js"><link rel="prefetch" href="/assets/js/17.291ef55a.js"><link rel="prefetch" href="/assets/js/18.495ecfb3.js"><link rel="prefetch" href="/assets/js/19.10e921d5.js"><link rel="prefetch" href="/assets/js/20.2a31e856.js"><link rel="prefetch" href="/assets/js/21.5df4722f.js"><link rel="prefetch" href="/assets/js/22.17bbb1ec.js"><link rel="prefetch" href="/assets/js/23.cc7dc45a.js"><link rel="prefetch" href="/assets/js/24.f4236d8c.js"><link rel="prefetch" href="/assets/js/25.f37ccebe.js"><link rel="prefetch" href="/assets/js/26.3e903901.js"><link rel="prefetch" href="/assets/js/27.18073c39.js"><link rel="prefetch" href="/assets/js/28.e11224a5.js"><link rel="prefetch" href="/assets/js/29.67ffffd1.js"><link rel="prefetch" href="/assets/js/30.2950a665.js"><link rel="prefetch" href="/assets/js/31.baa8f8c0.js"><link rel="prefetch" href="/assets/js/32.e0dc49b1.js"><link rel="prefetch" href="/assets/js/33.b1206928.js"><link rel="prefetch" href="/assets/js/34.80896a4e.js"><link rel="prefetch" href="/assets/js/36.d4e76783.js"><link rel="prefetch" href="/assets/js/37.f4bd175a.js"><link rel="prefetch" href="/assets/js/38.c5fe09a3.js"><link rel="prefetch" href="/assets/js/39.672cc9ca.js"><link rel="prefetch" href="/assets/js/4.19f24900.js"><link rel="prefetch" href="/assets/js/40.f460e10e.js"><link rel="prefetch" href="/assets/js/41.686e5048.js"><link rel="prefetch" href="/assets/js/42.38184866.js"><link rel="prefetch" href="/assets/js/43.58cfc8db.js"><link rel="prefetch" href="/assets/js/44.7cb344e5.js"><link rel="prefetch" href="/assets/js/45.d519ffb1.js"><link rel="prefetch" href="/assets/js/46.aa02b0d2.js"><link rel="prefetch" href="/assets/js/5.e9bee2e5.js"><link rel="prefetch" href="/assets/js/6.c0e8c7a8.js"><link rel="prefetch" href="/assets/js/7.78658652.js"><link rel="prefetch" href="/assets/js/8.1fdf085e.js">
+    <link rel="stylesheet" href="/assets/css/0.styles.b20cb76a.css">
+  </head>
+  <body>
+    <div id="app" data-server-rendered="true"><div><div class="theme-container" data-v-4698c43e><div data-v-4698c43e><div id="loader-wrapper" class="loading-wrapper" data-v-1c4f0192 data-v-4698c43e data-v-4698c43e><div class="loader-main" data-v-1c4f0192><div data-v-1c4f0192></div><div data-v-1c4f0192></div><div data-v-1c4f0192></div><div data-v-1c4f0192></div></div> <!----> <!----></div> <div class="password-shadow password-wrapper-out" style="display:none;" data-v-6cbeab0a data-v-4698c43e data-v-4698c43e><h3 class="title" style="display:none;" data-v-6cbeab0a data-v-6cbeab0a>前端develop</h3> <!----> <label id="box" class="inputBox" style="display:none;" data-v-6cbeab0a data-v-6cbeab0a><input type="password" value="" data-v-6cbeab0a> <span data-v-6cbeab0a>Konck! Knock!</span> <button data-v-6cbeab0a>OK</button></label> <div class="footer" style="display:none;" data-v-6cbeab0a data-v-6cbeab0a><span data-v-6cbeab0a><i class="iconfont reco-theme" data-v-6cbeab0a></i> <a target="blank" href="https://vuepress-theme-reco.recoluan.com" data-v-6cbeab0a>vuePress-theme-reco</a></span> <span data-v-6cbeab0a><i class="iconfont reco-copyright" data-v-6cbeab0a></i> <a data-v-6cbeab0a><span data-v-6cbeab0a>前端develop</span>
+            
+          <span data-v-6cbeab0a>2017 - </span>
+          2021
+        </a></span></div></div> <div class="hide" data-v-4698c43e><header class="navbar" data-v-4698c43e><div class="sidebar-button"><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" viewBox="0 0 448 512" class="icon"><path fill="currentColor" d="M436 124H12c-6.627 0-12-5.373-12-12V80c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12z"></path></svg></div> <a href="/" class="home-link router-link-active"><img src="/head.png" alt="前端develop" class="logo"> <span class="site-name">前端develop</span></a> <div class="links"><div class="color-picker"><a class="color-button"><i class="iconfont reco-color"></i></a> <div class="color-picker-menu" style="display:none;"><div class="mode-options"><h4 class="title">Choose mode</h4> <ul class="color-mode-options"><li class="dark">dark</li><li class="auto active">auto</li><li class="light">light</li></ul></div></div></div> <div class="search-box"><input aria-label="Search" autocomplete="off" spellcheck="false" value=""> <!----></div> <nav class="nav-links can-hide"><div class="nav-item"><a href="/" class="nav-link"><i class="iconfont reco-home"></i>
+  首页
+</a></div><div class="nav-item"><div class="dropdown-wrapper"><a class="dropdown-title"><span class="title"><i class="iconfont reco-category"></i>
+      分类
+    </span> <span class="arrow right"></span></a> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/categories/Deno/" class="nav-link"><i class="iconfont undefined"></i>
+  Deno
+</a></li><li class="dropdown-item"><!----> <a href="/categories/Docker/" class="nav-link"><i class="iconfont undefined"></i>
+  Docker
+</a></li><li class="dropdown-item"><!----> <a href="/categories/Nginx/" class="nav-link"><i class="iconfont undefined"></i>
+  Nginx
+</a></li><li class="dropdown-item"><!----> <a href="/categories/Python/" class="nav-link"><i class="iconfont undefined"></i>
+  Python
+</a></li><li class="dropdown-item"><!----> <a href="/categories/关于我/" class="nav-link"><i class="iconfont undefined"></i>
+  关于我
+</a></li><li class="dropdown-item"><!----> <a href="/categories/前端/" class="nav-link"><i class="iconfont undefined"></i>
+  前端
+</a></li><li class="dropdown-item"><!----> <a href="/categories/插件/" class="nav-link"><i class="iconfont undefined"></i>
+  插件
+</a></li><li class="dropdown-item"><!----> <a href="/categories/CI/" class="nav-link"><i class="iconfont undefined"></i>
+  CI
+</a></li><li class="dropdown-item"><!----> <a href="/categories/随笔/" class="nav-link"><i class="iconfont undefined"></i>
+  随笔
+</a></li><li class="dropdown-item"><!----> <a href="/categories/VuePress/" class="nav-link"><i class="iconfont undefined"></i>
+  VuePress
+</a></li></ul></div></div><div class="nav-item"><a href="/tag/" class="nav-link"><i class="iconfont reco-tag"></i>
+  标签
+</a></div><div class="nav-item"><a href="/views/about.html" class="nav-link"><i class="iconfont reco-other"></i>
+  关于我
+</a></div><div class="nav-item"><a href="/timeline/" class="nav-link"><i class="iconfont reco-date"></i>
+  时间轴
+</a></div><div class="nav-item"><div class="dropdown-wrapper"><a class="dropdown-title"><span class="title"><i class="iconfont reco-message"></i>
+      联系我
+    </span> <span class="arrow right"></span></a> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="https://github.com/AD-feiben" target="_blank" rel="noopener noreferrer" class="nav-link external"><i class="iconfont reco-github"></i>
+  GitHub
+  <span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a></li><li class="dropdown-item"><!----> <a href="https://juejin.im/user/58d3ab5b128fe1006cb236e1" target="_blank" rel="noopener noreferrer" class="nav-link external"><i class="iconfont reco-juejin"></i>
+  掘金
+  <span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a></li><li class="dropdown-item"><!----> <a href="https://www.zhihu.com/people/fei-ben-3-68/activities" target="_blank" rel="noopener noreferrer" class="nav-link external"><i class="iconfont reco-zhihu"></i>
+  知乎
+  <span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a></li><li class="dropdown-item"><!----> <a href="https://www.jianshu.com/u/ccb05861b473" target="_blank" rel="noopener noreferrer" class="nav-link external"><i class="iconfont reco-jianshu"></i>
+  简书
+  <span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a></li></ul></div></div> <!----></nav></div></header> <div class="sidebar-mask" data-v-4698c43e></div> <aside class="sidebar" data-v-4698c43e><div class="personal-info-wrapper" data-v-6c8ffc9c><img src="/head.png" alt="author-avatar" class="personal-img" data-v-6c8ffc9c> <h3 class="name" data-v-6c8ffc9c>
+    前端develop
+  </h3> <div class="num" data-v-6c8ffc9c><div data-v-6c8ffc9c><h3 data-v-6c8ffc9c>33</h3> <h6 data-v-6c8ffc9c>文章</h6></div> <div data-v-6c8ffc9c><h3 data-v-6c8ffc9c>44</h3> <h6 data-v-6c8ffc9c>标签</h6></div></div> <hr data-v-6c8ffc9c></div> <nav class="nav-links"><div class="nav-item"><a href="/" class="nav-link"><i class="iconfont reco-home"></i>
+  首页
+</a></div><div class="nav-item"><div class="dropdown-wrapper"><a class="dropdown-title"><span class="title"><i class="iconfont reco-category"></i>
+      分类
+    </span> <span class="arrow right"></span></a> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/categories/Deno/" class="nav-link"><i class="iconfont undefined"></i>
+  Deno
+</a></li><li class="dropdown-item"><!----> <a href="/categories/Docker/" class="nav-link"><i class="iconfont undefined"></i>
+  Docker
+</a></li><li class="dropdown-item"><!----> <a href="/categories/Nginx/" class="nav-link"><i class="iconfont undefined"></i>
+  Nginx
+</a></li><li class="dropdown-item"><!----> <a href="/categories/Python/" class="nav-link"><i class="iconfont undefined"></i>
+  Python
+</a></li><li class="dropdown-item"><!----> <a href="/categories/关于我/" class="nav-link"><i class="iconfont undefined"></i>
+  关于我
+</a></li><li class="dropdown-item"><!----> <a href="/categories/前端/" class="nav-link"><i class="iconfont undefined"></i>
+  前端
+</a></li><li class="dropdown-item"><!----> <a href="/categories/插件/" class="nav-link"><i class="iconfont undefined"></i>
+  插件
+</a></li><li class="dropdown-item"><!----> <a href="/categories/CI/" class="nav-link"><i class="iconfont undefined"></i>
+  CI
+</a></li><li class="dropdown-item"><!----> <a href="/categories/随笔/" class="nav-link"><i class="iconfont undefined"></i>
+  随笔
+</a></li><li class="dropdown-item"><!----> <a href="/categories/VuePress/" class="nav-link"><i class="iconfont undefined"></i>
+  VuePress
+</a></li></ul></div></div><div class="nav-item"><a href="/tag/" class="nav-link"><i class="iconfont reco-tag"></i>
+  标签
+</a></div><div class="nav-item"><a href="/views/about.html" class="nav-link"><i class="iconfont reco-other"></i>
+  关于我
+</a></div><div class="nav-item"><a href="/timeline/" class="nav-link"><i class="iconfont reco-date"></i>
+  时间轴
+</a></div><div class="nav-item"><div class="dropdown-wrapper"><a class="dropdown-title"><span class="title"><i class="iconfont reco-message"></i>
+      联系我
+    </span> <span class="arrow right"></span></a> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="https://github.com/AD-feiben" target="_blank" rel="noopener noreferrer" class="nav-link external"><i class="iconfont reco-github"></i>
+  GitHub
+  <span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a></li><li class="dropdown-item"><!----> <a href="https://juejin.im/user/58d3ab5b128fe1006cb236e1" target="_blank" rel="noopener noreferrer" class="nav-link external"><i class="iconfont reco-juejin"></i>
+  掘金
+  <span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a></li><li class="dropdown-item"><!----> <a href="https://www.zhihu.com/people/fei-ben-3-68/activities" target="_blank" rel="noopener noreferrer" class="nav-link external"><i class="iconfont reco-zhihu"></i>
+  知乎
+  <span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a></li><li class="dropdown-item"><!----> <a href="https://www.jianshu.com/u/ccb05861b473" target="_blank" rel="noopener noreferrer" class="nav-link external"><i class="iconfont reco-jianshu"></i>
+  简书
+  <span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a></li></ul></div></div> <!----></nav>  <ul class="sidebar-links"><li><section class="sidebar-group depth-0"><p class="sidebar-heading open"><span>深入 Vue3 源码，学习初始化流程</span> <!----></p> <ul class="sidebar-links sidebar-group-items"><li><a href="/views/%E5%89%8D%E7%AB%AF/2021/%E6%B7%B1%E5%85%A5%20Vue3%20%E6%BA%90%E7%A0%81%EF%BC%8C%E5%AD%A6%E4%B9%A0%E5%88%9D%E5%A7%8B%E5%8C%96%E6%B5%81%E7%A8%8B.html#搭建调试环境" class="sidebar-link">搭建调试环境</a><ul class="sidebar-sub-headers"></ul></li><li><a href="/views/%E5%89%8D%E7%AB%AF/2021/%E6%B7%B1%E5%85%A5%20Vue3%20%E6%BA%90%E7%A0%81%EF%BC%8C%E5%AD%A6%E4%B9%A0%E5%88%9D%E5%A7%8B%E5%8C%96%E6%B5%81%E7%A8%8B.html#进行调试" class="sidebar-link">进行调试</a><ul class="sidebar-sub-headers"><li class="sidebar-sub-header"><a href="/views/%E5%89%8D%E7%AB%AF/2021/%E6%B7%B1%E5%85%A5%20Vue3%20%E6%BA%90%E7%A0%81%EF%BC%8C%E5%AD%A6%E4%B9%A0%E5%88%9D%E5%A7%8B%E5%8C%96%E6%B5%81%E7%A8%8B.html#createapp" class="sidebar-link">createApp</a></li><li class="sidebar-sub-header"><a href="/views/%E5%89%8D%E7%AB%AF/2021/%E6%B7%B1%E5%85%A5%20Vue3%20%E6%BA%90%E7%A0%81%EF%BC%8C%E5%AD%A6%E4%B9%A0%E5%88%9D%E5%A7%8B%E5%8C%96%E6%B5%81%E7%A8%8B.html#mount" class="sidebar-link">mount</a></li></ul></li><li><a href="/views/%E5%89%8D%E7%AB%AF/2021/%E6%B7%B1%E5%85%A5%20Vue3%20%E6%BA%90%E7%A0%81%EF%BC%8C%E5%AD%A6%E4%B9%A0%E5%88%9D%E5%A7%8B%E5%8C%96%E6%B5%81%E7%A8%8B.html#总结" class="sidebar-link">总结</a><ul class="sidebar-sub-headers"></ul></li></ul></section></li></ul> </aside> <div class="password-shadow password-wrapper-in" style="display:none;" data-v-6cbeab0a data-v-4698c43e><h3 class="title" style="display:none;" data-v-6cbeab0a data-v-6cbeab0a>深入 Vue3 源码，学习初始化流程</h3> <!----> <label id="box" class="inputBox" style="display:none;" data-v-6cbeab0a data-v-6cbeab0a><input type="password" value="" data-v-6cbeab0a> <span data-v-6cbeab0a>Konck! Knock!</span> <button data-v-6cbeab0a>OK</button></label> <div class="footer" style="display:none;" data-v-6cbeab0a data-v-6cbeab0a><span data-v-6cbeab0a><i class="iconfont reco-theme" data-v-6cbeab0a></i> <a target="blank" href="https://vuepress-theme-reco.recoluan.com" data-v-6cbeab0a>vuePress-theme-reco</a></span> <span data-v-6cbeab0a><i class="iconfont reco-copyright" data-v-6cbeab0a></i> <a data-v-6cbeab0a><span data-v-6cbeab0a>前端develop</span>
+            
+          <span data-v-6cbeab0a>2017 - </span>
+          2021
+        </a></span></div></div> <div data-v-4698c43e><main class="page"><!----> <div class="page-title" style="display:none;"><h1>深入 Vue3 源码，学习初始化流程</h1> <hr> <div data-v-484a899e><i class="iconfont reco-account" data-v-484a899e><span data-v-484a899e>前端develop</span></i> <i class="iconfont reco-date" data-v-484a899e><span data-v-484a899e>2021-08-26</span></i> <i class="iconfont reco-eye" data-v-484a899e><span id="/views/%E5%89%8D%E7%AB%AF/2021/%E6%B7%B1%E5%85%A5%20Vue3%20%E6%BA%90%E7%A0%81%EF%BC%8C%E5%AD%A6%E4%B9%A0%E5%88%9D%E5%A7%8B%E5%8C%96%E6%B5%81%E7%A8%8B.html" data-flag-title="Your Article Title" class="leancloud-visitors" data-v-484a899e><a class="leancloud-visitors-count" style="font-size:.9rem;font-weight:normal;color:#999;"></a></span></i> <i class="iconfont reco-tag tags" data-v-484a899e><span class="tag-item" data-v-484a899e>
+      Vue3
+    </span><span class="tag-item" data-v-484a899e>
+      源码
+    </span></i></div></div> <div class="theme-reco-content content__default" style="display:none;"><h2 id="搭建调试环境"><a href="#搭建调试环境" class="header-anchor">#</a> 搭建调试环境</h2> <p>为了弄清楚 Vue3 的初始化，建议先克隆 Vue3 到本地。</p> <div class="language-bash line-numbers-mode"><pre class="language-bash"><code><span class="token function">git</span> clone https://github.com/vuejs/vue-next.git
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br></div></div><p>安装依赖</p> <div class="language-bash line-numbers-mode"><pre class="language-bash"><code><span class="token function">npm</span> <span class="token function">install</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br></div></div> <p>修改 package.json，将 dev 命令加上 <code>--sourcemap</code> 方便调试，并运行 <code>npm run dev</code></p> <div class="language-json line-numbers-mode"><pre class="language-json"><code><span class="token comment">// package.json</span>
+...
+<span class="token property">&quot;scripts&quot;</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+  <span class="token property">&quot;dev&quot;</span><span class="token operator">:</span> <span class="token string">&quot;node scripts/dev.js --sourcemap&quot;</span><span class="token punctuation">,</span>
+  ...
+<span class="token punctuation">}</span>
+...
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br></div></div><p>在 packages/vue 目录下增加 index.html，内容如下</p> <div class="language-html line-numbers-mode"><pre class="language-html"><code><span class="token comment">&lt;!-- index.html --&gt;</span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span> <span class="token attr-name">id</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">&quot;</span>app<span class="token punctuation">&quot;</span></span><span class="token punctuation">&gt;</span></span>
+  {{ count }}
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>script</span> <span class="token attr-name">src</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">&quot;</span>./dist/vue.global.js<span class="token punctuation">&quot;</span></span><span class="token punctuation">&gt;</span></span><span class="token script"></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>script</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>script</span><span class="token punctuation">&gt;</span></span><span class="token script"><span class="token language-javascript">
+  Vue<span class="token punctuation">.</span><span class="token function">createApp</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+    <span class="token function">setup</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token keyword">const</span> count <span class="token operator">=</span> Vue<span class="token punctuation">.</span><span class="token function">ref</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+      <span class="token keyword">return</span> <span class="token punctuation">{</span> count <span class="token punctuation">}</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">mount</span><span class="token punctuation">(</span><span class="token string">'#app'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>script</span><span class="token punctuation">&gt;</span></span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br><span class="line-number">9</span><br><span class="line-number">10</span><br><span class="line-number">11</span><br><span class="line-number">12</span><br><span class="line-number">13</span><br></div></div><p>在浏览器打开 index.html，程序正常运行则可以开始进行下一步调试。</p> <h2 id="进行调试"><a href="#进行调试" class="header-anchor">#</a> 进行调试</h2> <blockquote><p>假如在下面的流程中迷失了方向，建议先看一下结尾的总结，再回过头来看这一段。</p></blockquote> <p><img src="https://feiben-1253434158.cos.ap-guangzhou.myqcloud.com/blogimage-20210825163424230.png" alt="调试"></p> <p>在 createApp 的位置打上断点，然后刷新页面进断点，开始调试。</p> <p>具体大家可以自行调试，我在这里就大概描述一下初始化流程。</p> <h3 id="createapp"><a href="#createapp" class="header-anchor">#</a> createApp</h3> <p>进入 createApp 内部，会跳转到  packages/runtime-dom/src/index.ts 的 createApp，执行完成返回 app 实例。</p> <div class="language-ts line-numbers-mode"><pre class="language-ts"><code><span class="token comment">// packages/runtime-dom/src/index.ts</span>
+<span class="token keyword">export</span> <span class="token keyword">const</span> createApp <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token operator">...</span>args<span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+  <span class="token keyword">const</span> app <span class="token operator">=</span> <span class="token function">ensureRenderer</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">createApp</span><span class="token punctuation">(</span><span class="token operator">...</span>args<span class="token punctuation">)</span>
+  <span class="token operator">...</span>
+  <span class="token keyword">return</span> app
+<span class="token punctuation">}</span><span class="token punctuation">)</span> <span class="token keyword">as</span> CreateAppFunction<span class="token operator">&lt;</span>Element<span class="token operator">&gt;</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br></div></div><p>接下来继续看 ensureRenderer 的实现。</p> <div class="language-ts line-numbers-mode"><pre class="language-ts"><code><span class="token comment">// packages/runtime-dom/src/index.ts</span>
+<span class="token keyword">function</span> <span class="token function">ensureRenderer</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token keyword">return</span> <span class="token punctuation">(</span>
+    renderer <span class="token operator">||</span>
+    <span class="token punctuation">(</span>renderer <span class="token operator">=</span> <span class="token generic-function"><span class="token function">createRenderer</span><span class="token generic class-name"><span class="token operator">&lt;</span>Node<span class="token punctuation">,</span> Element <span class="token operator">|</span> ShadowRoot<span class="token operator">&gt;</span></span></span><span class="token punctuation">(</span>rendererOptions<span class="token punctuation">)</span><span class="token punctuation">)</span>
+  <span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br></div></div><p>这里的 renderer 是个单例，初始时会调用 createRenderer 创建，再继续深入。</p> <p>来到 packages/runtime-core/src/renderer.ts，可以看到 createRenderer 又会调用 baseCreateRenderer。</p> <div class="language-ts line-numbers-mode"><pre class="language-ts"><code><span class="token comment">// packages/runtime-core/src/renderer.ts</span>
+<span class="token keyword">export</span> <span class="token keyword">function</span> <span class="token generic-function"><span class="token function">createRenderer</span><span class="token generic class-name"><span class="token operator">&lt;</span>
+  HostNode <span class="token operator">=</span> RendererNode<span class="token punctuation">,</span>
+  HostElement <span class="token operator">=</span> RendererElement
+<span class="token operator">&gt;</span></span></span><span class="token punctuation">(</span>options<span class="token operator">:</span> RendererOptions<span class="token operator">&lt;</span>HostNode<span class="token punctuation">,</span> HostElement<span class="token operator">&gt;</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token keyword">return</span> <span class="token generic-function"><span class="token function">baseCreateRenderer</span><span class="token generic class-name"><span class="token operator">&lt;</span>HostNode<span class="token punctuation">,</span> HostElement<span class="token operator">&gt;</span></span></span><span class="token punctuation">(</span>options<span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br></div></div><p>baseCreateRenderer 的实现有 2000 行，我们只需要关注几个关键点就可以了。</p> <p><img src="https://feiben-1253434158.cos.ap-guangzhou.myqcloud.com/blog20210825175058.png" alt=""></p> <p>其返回值也就是 ensureRenderer() 的返回值</p> <div class="language-ts line-numbers-mode"><pre class="language-ts"><code><span class="token comment">// packages/runtime-core/src/renderer.ts</span>
+<span class="token keyword">function</span> <span class="token function">baseCreateRenderer</span><span class="token punctuation">(</span>
+  options<span class="token operator">:</span> RendererOptions<span class="token punctuation">,</span>
+  createHydrationFns<span class="token operator">?</span><span class="token operator">:</span> <span class="token keyword">typeof</span> createHydrationFunctions
+<span class="token punctuation">)</span><span class="token operator">:</span> <span class="token builtin">any</span> <span class="token punctuation">{</span>
+    <span class="token comment">// 此处省略 2000 行</span>
+  <span class="token keyword">return</span> <span class="token punctuation">{</span>
+    render<span class="token punctuation">,</span>
+    hydrate<span class="token punctuation">,</span>
+    createApp<span class="token operator">:</span> <span class="token function">createAppAPI</span><span class="token punctuation">(</span>render<span class="token punctuation">,</span> hydrate<span class="token punctuation">)</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br><span class="line-number">9</span><br><span class="line-number">10</span><br><span class="line-number">11</span><br><span class="line-number">12</span><br></div></div><p>接下来回到开始的位置，在执行完 ensureRenderer() 后会接着执行 createApp，这个 createApp 就是上一步返回的 createApp，再接着看看做了哪些工作。</p> <div class="language-ts line-numbers-mode"><pre class="language-ts"><code><span class="token comment">// packages/runtime-dom/src/index.ts</span>
+<span class="token keyword">export</span> <span class="token keyword">const</span> createApp <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token operator">...</span>args<span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+  <span class="token keyword">const</span> app <span class="token operator">=</span> <span class="token function">ensureRenderer</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">createApp</span><span class="token punctuation">(</span><span class="token operator">...</span>args<span class="token punctuation">)</span>
+  <span class="token operator">...</span>
+  <span class="token keyword">return</span> app
+<span class="token punctuation">}</span><span class="token punctuation">)</span> <span class="token keyword">as</span> CreateAppFunction<span class="token operator">&lt;</span>Element<span class="token operator">&gt;</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br></div></div><p>ensureRenderer 返回的 createApp 由 createAppAPI 实现，接下来再看看 createAppAPI 是如何实现的吧。</p> <div class="language-ts line-numbers-mode"><pre class="language-ts"><code><span class="token comment">// packages/runtime-core/src/apiCreateApp.ts</span>
+<span class="token keyword">export</span> <span class="token keyword">function</span> <span class="token generic-function"><span class="token function">createAppAPI</span><span class="token generic class-name"><span class="token operator">&lt;</span>HostElement<span class="token operator">&gt;</span></span></span><span class="token punctuation">(</span>
+  render<span class="token operator">:</span> RootRenderFunction<span class="token punctuation">,</span>
+  hydrate<span class="token operator">?</span><span class="token operator">:</span> RootHydrateFunction
+<span class="token punctuation">)</span><span class="token operator">:</span> CreateAppFunction<span class="token operator">&lt;</span>HostElement<span class="token operator">&gt;</span> <span class="token punctuation">{</span>
+  <span class="token keyword">return</span> <span class="token keyword">function</span> <span class="token function">createApp</span><span class="token punctuation">(</span>rootComponent<span class="token punctuation">,</span> rootProps <span class="token operator">=</span> <span class="token keyword">null</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">const</span> app<span class="token operator">:</span> App <span class="token operator">=</span> <span class="token punctuation">(</span>context<span class="token punctuation">.</span>app <span class="token operator">=</span> <span class="token punctuation">{</span>
+      _uid<span class="token operator">:</span> uid<span class="token operator">++</span><span class="token punctuation">,</span>
+      _component<span class="token operator">:</span> rootComponent <span class="token keyword">as</span> ConcreteComponent<span class="token punctuation">,</span>
+      _props<span class="token operator">:</span> rootProps<span class="token punctuation">,</span>
+      _container<span class="token operator">:</span> <span class="token keyword">null</span><span class="token punctuation">,</span>
+      _context<span class="token operator">:</span> context<span class="token punctuation">,</span>
+      _instance<span class="token operator">:</span> <span class="token keyword">null</span><span class="token punctuation">,</span>
+
+      version<span class="token punctuation">,</span>
+
+      <span class="token keyword">get</span> <span class="token function">config</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+
+      <span class="token keyword">set</span> <span class="token function">config</span><span class="token punctuation">(</span>v<span class="token punctuation">)</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+
+      <span class="token function">use</span><span class="token punctuation">(</span>plugin<span class="token operator">:</span> Plugin<span class="token punctuation">,</span> <span class="token operator">...</span>options<span class="token operator">:</span> <span class="token builtin">any</span><span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+
+      <span class="token function">mixin</span><span class="token punctuation">(</span>mixin<span class="token operator">:</span> ComponentOptions<span class="token punctuation">)</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+
+      <span class="token function">component</span><span class="token punctuation">(</span>name<span class="token operator">:</span> <span class="token builtin">string</span><span class="token punctuation">,</span> component<span class="token operator">?</span><span class="token operator">:</span> Component<span class="token punctuation">)</span><span class="token operator">:</span> <span class="token builtin">any</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+
+      <span class="token function">directive</span><span class="token punctuation">(</span>name<span class="token operator">:</span> <span class="token builtin">string</span><span class="token punctuation">,</span> directive<span class="token operator">?</span><span class="token operator">:</span> Directive<span class="token punctuation">)</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+
+      <span class="token function">mount</span><span class="token punctuation">(</span>
+        rootContainer<span class="token operator">:</span> HostElement<span class="token punctuation">,</span>
+        isHydrate<span class="token operator">?</span><span class="token operator">:</span> <span class="token builtin">boolean</span><span class="token punctuation">,</span>
+        isSVG<span class="token operator">?</span><span class="token operator">:</span> <span class="token builtin">boolean</span>
+      <span class="token punctuation">)</span><span class="token operator">:</span> <span class="token builtin">any</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+
+      <span class="token function">unmount</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+
+      <span class="token function">provide</span><span class="token punctuation">(</span>key<span class="token punctuation">,</span> value<span class="token punctuation">)</span> <span class="token punctuation">{</span><span class="token punctuation">}</span>
+    <span class="token punctuation">}</span><span class="token punctuation">)</span>
+    <span class="token keyword">return</span> app
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br><span class="line-number">9</span><br><span class="line-number">10</span><br><span class="line-number">11</span><br><span class="line-number">12</span><br><span class="line-number">13</span><br><span class="line-number">14</span><br><span class="line-number">15</span><br><span class="line-number">16</span><br><span class="line-number">17</span><br><span class="line-number">18</span><br><span class="line-number">19</span><br><span class="line-number">20</span><br><span class="line-number">21</span><br><span class="line-number">22</span><br><span class="line-number">23</span><br><span class="line-number">24</span><br><span class="line-number">25</span><br><span class="line-number">26</span><br><span class="line-number">27</span><br><span class="line-number">28</span><br><span class="line-number">29</span><br><span class="line-number">30</span><br><span class="line-number">31</span><br><span class="line-number">32</span><br><span class="line-number">33</span><br><span class="line-number">34</span><br><span class="line-number">35</span><br><span class="line-number">36</span><br><span class="line-number">37</span><br><span class="line-number">38</span><br><span class="line-number">39</span><br><span class="line-number">40</span><br><span class="line-number">41</span><br></div></div><p>可以看到 createAppAPI 会返回一个 createApp 函数，也就是我们调用 createApp，当 createApp 执行完之后会返回 app 实例。app 实例还会有 use、mixin、component、directive 等方法，可以为全局 app 添加一些扩展。</p> <p>案例如下，传入的第一个参数为上一步的 rootComponent 也就是根组件。</p> <div class="language-js line-numbers-mode"><pre class="language-js"><code><span class="token comment">// index.html</span>
+<span class="token keyword">const</span> app <span class="token operator">=</span> Vue<span class="token punctuation">.</span><span class="token function">createApp</span><span class="token punctuation">(</span><span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">)</span>
+	<span class="token punctuation">.</span><span class="token function">use</span><span class="token punctuation">(</span>xxx<span class="token punctuation">)</span>
+	<span class="token punctuation">.</span><span class="token function">component</span><span class="token punctuation">(</span>xxx<span class="token punctuation">)</span>
+	<span class="token punctuation">.</span><span class="token function">mount</span><span class="token punctuation">(</span>xxx<span class="token punctuation">)</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br></div></div><h3 id="mount"><a href="#mount" class="header-anchor">#</a> mount</h3> <p>createApp 创建 app 实例后，要渲染到页面上还需要调用 mount。接下来看看 mount 又做了什么工作。还是在 createAppAPI 内部</p> <div class="language-ts line-numbers-mode"><pre class="language-ts"><code><span class="token comment">// packages/runtime-core/src/apiCreateApp.ts</span>
+<span class="token function">mount</span><span class="token punctuation">(</span>
+  rootContainer<span class="token operator">:</span> HostElement<span class="token punctuation">,</span>
+  isHydrate<span class="token operator">?</span><span class="token operator">:</span> <span class="token builtin">boolean</span><span class="token punctuation">,</span>
+  isSVG<span class="token operator">?</span><span class="token operator">:</span> <span class="token builtin">boolean</span>
+<span class="token punctuation">)</span><span class="token operator">:</span> <span class="token builtin">any</span> <span class="token punctuation">{</span>
+  <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span>isMounted<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">const</span> vnode <span class="token operator">=</span> <span class="token function">createVNode</span><span class="token punctuation">(</span>
+      rootComponent <span class="token keyword">as</span> ConcreteComponent<span class="token punctuation">,</span>
+      rootProps
+    <span class="token punctuation">)</span>
+		<span class="token operator">...</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>isHydrate <span class="token operator">&amp;&amp;</span> hydrate<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token function">hydrate</span><span class="token punctuation">(</span>vnode <span class="token keyword">as</span> VNode<span class="token operator">&lt;</span>Node<span class="token punctuation">,</span> Element<span class="token operator">&gt;</span><span class="token punctuation">,</span> rootContainer <span class="token keyword">as</span> <span class="token builtin">any</span><span class="token punctuation">)</span>
+    <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+      <span class="token function">render</span><span class="token punctuation">(</span>vnode<span class="token punctuation">,</span> rootContainer<span class="token punctuation">,</span> isSVG<span class="token punctuation">)</span>
+    <span class="token punctuation">}</span>
+    isMounted <span class="token operator">=</span> <span class="token boolean">true</span>
+    app<span class="token punctuation">.</span>_container <span class="token operator">=</span> rootContainer
+    <span class="token operator">...</span>
+    <span class="token keyword">return</span> vnode<span class="token punctuation">.</span>component<span class="token operator">!</span><span class="token punctuation">.</span>proxy
+  <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token keyword">if</span> <span class="token punctuation">(</span>__DEV__<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token comment">// 开发环境警告提醒，app 不可以重复挂载</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br><span class="line-number">9</span><br><span class="line-number">10</span><br><span class="line-number">11</span><br><span class="line-number">12</span><br><span class="line-number">13</span><br><span class="line-number">14</span><br><span class="line-number">15</span><br><span class="line-number">16</span><br><span class="line-number">17</span><br><span class="line-number">18</span><br><span class="line-number">19</span><br><span class="line-number">20</span><br><span class="line-number">21</span><br><span class="line-number">22</span><br><span class="line-number">23</span><br><span class="line-number">24</span><br><span class="line-number">25</span><br></div></div><p>最终会执行 <code>render(vnode, rootContainer, isSVG)</code> 这一行代码，接下来看看调用 createAppAPI 时传入的 renderer。</p> <p>回到 baseCreateRenderer 中，可以看到在 return 时调用 createAppAPI 传入的 renderer。</p> <div class="language-ts line-numbers-mode"><pre class="language-ts"><code><span class="token comment">// packages/runtime-core/src/renderer.ts</span>
+<span class="token keyword">function</span> <span class="token function">baseCreateRenderer</span><span class="token punctuation">(</span>
+  options<span class="token operator">:</span> RendererOptions<span class="token punctuation">,</span>
+  createHydrationFns<span class="token operator">?</span><span class="token operator">:</span> <span class="token keyword">typeof</span> createHydrationFunctions
+<span class="token punctuation">)</span><span class="token operator">:</span> <span class="token builtin">any</span> <span class="token punctuation">{</span>
+    <span class="token comment">// 此处省略 2000 行</span>
+  <span class="token keyword">return</span> <span class="token punctuation">{</span>
+    render<span class="token punctuation">,</span>
+    hydrate<span class="token punctuation">,</span>
+    createApp<span class="token operator">:</span> <span class="token function">createAppAPI</span><span class="token punctuation">(</span>render<span class="token punctuation">,</span> hydrate<span class="token punctuation">)</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br><span class="line-number">9</span><br><span class="line-number">10</span><br><span class="line-number">11</span><br><span class="line-number">12</span><br></div></div><p>其中 renderer 在 baseCreateRenderer 中定义了</p> <div class="language-ts line-numbers-mode"><pre class="language-ts"><code><span class="token keyword">const</span> render<span class="token operator">:</span> <span class="token function-variable function">RootRenderFunction</span> <span class="token operator">=</span> <span class="token punctuation">(</span>vnode<span class="token punctuation">,</span> container<span class="token punctuation">,</span> isSVG<span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+  <span class="token keyword">if</span> <span class="token punctuation">(</span>vnode <span class="token operator">==</span> <span class="token keyword">null</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>container<span class="token punctuation">.</span>_vnode<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token function">unmount</span><span class="token punctuation">(</span>container<span class="token punctuation">.</span>_vnode<span class="token punctuation">,</span> <span class="token keyword">null</span><span class="token punctuation">,</span> <span class="token keyword">null</span><span class="token punctuation">,</span> <span class="token boolean">true</span><span class="token punctuation">)</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+    <span class="token function">patch</span><span class="token punctuation">(</span>container<span class="token punctuation">.</span>_vnode <span class="token operator">||</span> <span class="token keyword">null</span><span class="token punctuation">,</span> vnode<span class="token punctuation">,</span> container<span class="token punctuation">,</span> <span class="token keyword">null</span><span class="token punctuation">,</span> <span class="token keyword">null</span><span class="token punctuation">,</span> <span class="token keyword">null</span><span class="token punctuation">,</span> isSVG<span class="token punctuation">)</span>
+  <span class="token punctuation">}</span>
+  <span class="token function">flushPostFlushCbs</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+  container<span class="token punctuation">.</span>_vnode <span class="token operator">=</span> vnode
+<span class="token punctuation">}</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br><span class="line-number">9</span><br><span class="line-number">10</span><br><span class="line-number">11</span><br></div></div><p>在 index.html 的例子中，第一次执行 render 时 vnode 是由 <code>rootComponent</code> 创建出来，rootComponent 则是 createApp 时传入的对象。</p> <p><code>container</code> 为 app 容器，也就是 id 为 app 的 div , <code>container._vnode</code> 为 <code>undefined</code>。</p> <p>所以最终会进入 patch 。</p> <p>patch 的逻辑同样位于 baseCreateRenderer 中。代码太长了，这里就讲一下思路。在 patch 中会判断 vnode 的 type 或 shapeFlag 执行对应的操作。</p> <p><img src="https://feiben-1253434158.cos.ap-guangzhou.myqcloud.com/PicGo/20210825231143.png" alt=""></p> <p>因为第一次 patch 时，vnode 是一个组件，会进入 <code>ShapeFlags.COMPONENT</code> 的判断内，执行 <code>processComponent</code>进行组件的处理。</p> <p>然后会触发 <code>mountComponent</code> 挂载组件，从而触发 <code>setupComponent(instance)</code> 初始化组件的 props、slots、setup 等将需要 proxy 代理的数据做好准备，以及将 template 进行编译为 render。</p> <div class="language-ts line-numbers-mode"><pre class="language-ts"><code><span class="token comment">// packages/runtime-core/src/renderer.ts</span>
+<span class="token keyword">const</span> mountComponent<span class="token operator">:</span> <span class="token function-variable function">MountComponentFn</span> <span class="token operator">=</span> <span class="token punctuation">(</span>
+  initialVNode<span class="token punctuation">,</span>
+  container<span class="token punctuation">,</span>
+  anchor<span class="token punctuation">,</span>
+  parentComponent<span class="token punctuation">,</span>
+  parentSuspense<span class="token punctuation">,</span>
+  isSVG<span class="token punctuation">,</span>
+  optimized
+<span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+  <span class="token comment">// 2.x compat may pre-creaate the component instance before actually</span>
+  <span class="token comment">// mounting</span>
+  <span class="token keyword">const</span> compatMountInstance <span class="token operator">=</span>
+        __COMPAT__ <span class="token operator">&amp;&amp;</span> initialVNode<span class="token punctuation">.</span>isCompatRoot <span class="token operator">&amp;&amp;</span> initialVNode<span class="token punctuation">.</span>component
+  <span class="token keyword">const</span> instance<span class="token operator">:</span> ComponentInternalInstance <span class="token operator">=</span>
+        compatMountInstance <span class="token operator">||</span>
+        <span class="token punctuation">(</span>initialVNode<span class="token punctuation">.</span>component <span class="token operator">=</span> <span class="token function">createComponentInstance</span><span class="token punctuation">(</span>
+          initialVNode<span class="token punctuation">,</span>
+          parentComponent<span class="token punctuation">,</span>
+          parentSuspense
+        <span class="token punctuation">)</span><span class="token punctuation">)</span>
+	<span class="token operator">...</span>
+  <span class="token comment">// resolve props and slots for setup context</span>
+  <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span><span class="token punctuation">(</span>__COMPAT__ <span class="token operator">&amp;&amp;</span> compatMountInstance<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token operator">...</span>
+    <span class="token function">setupComponent</span><span class="token punctuation">(</span>instance<span class="token punctuation">)</span>
+    <span class="token operator">...</span>
+  <span class="token punctuation">}</span>
+  <span class="token operator">...</span>
+  <span class="token function">setupRenderEffect</span><span class="token punctuation">(</span>
+    instance<span class="token punctuation">,</span>
+    initialVNode<span class="token punctuation">,</span>
+    container<span class="token punctuation">,</span>
+    anchor<span class="token punctuation">,</span>
+    parentSuspense<span class="token punctuation">,</span>
+    isSVG<span class="token punctuation">,</span>
+    optimized
+  <span class="token punctuation">)</span>
+  <span class="token operator">...</span>
+<span class="token punctuation">}</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br><span class="line-number">9</span><br><span class="line-number">10</span><br><span class="line-number">11</span><br><span class="line-number">12</span><br><span class="line-number">13</span><br><span class="line-number">14</span><br><span class="line-number">15</span><br><span class="line-number">16</span><br><span class="line-number">17</span><br><span class="line-number">18</span><br><span class="line-number">19</span><br><span class="line-number">20</span><br><span class="line-number">21</span><br><span class="line-number">22</span><br><span class="line-number">23</span><br><span class="line-number">24</span><br><span class="line-number">25</span><br><span class="line-number">26</span><br><span class="line-number">27</span><br><span class="line-number">28</span><br><span class="line-number">29</span><br><span class="line-number">30</span><br><span class="line-number">31</span><br><span class="line-number">32</span><br><span class="line-number">33</span><br><span class="line-number">34</span><br><span class="line-number">35</span><br><span class="line-number">36</span><br><span class="line-number">37</span><br><span class="line-number">38</span><br><span class="line-number">39</span><br><span class="line-number">40</span><br></div></div><p>紧接着会执行 <code>setupRenderEffect</code>，该方法会将渲染函数封装成一个副作用，当依赖的响应式数据发生变化时，会自动重新执行。</p> <p>重点关注 <code>componentUpdateFn</code>，代码太长了，这里也简单讲下吧，第一次会执行 <code>instance.isMounted</code> 为 undefined，则会进入创建流程，其中会执行 <code>const subTree = (instance.subTree = renderComponentRoot(instance))</code> 创建子树，然后通过 patch 递归创建子节点，结束后 <code>instance.isMounted = true</code>。</p> <p>一旦依赖发生变化，<code>componentUpdateFn</code>会被重新执行，<code>instance.isMounted</code> 为 true，则会尽心更新的处理，具体就不再展开了。</p> <p>至于为什么依赖发生变化 <code>componentUpdateFn</code>会被重新执行，这个我们留在下一篇文章中介绍，记得关注我。</p> <h2 id="总结"><a href="#总结" class="header-anchor">#</a> 总结</h2> <ol><li>在 index.html 调用 <code>createApp</code> 时会先经过<code>ensureRenderer</code> 和 <code>baseCreateRenderer</code> 生成下面的对象</li></ol> <div class="language-ts line-numbers-mode"><pre class="language-ts"><code><span class="token comment">// baseCreateRenderer 返回值</span>
+<span class="token keyword">return</span> <span class="token punctuation">{</span>
+  render<span class="token punctuation">,</span>
+  hydrate<span class="token punctuation">,</span>
+  createApp<span class="token operator">:</span> <span class="token function">createAppAPI</span><span class="token punctuation">(</span>render<span class="token punctuation">,</span> hydrate<span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br></div></div><ol start="2"><li><p>继续调用 <code>baseCreateRenderer</code> 返回的 <code>createApp</code>，这里的 <code>createApp</code> 实际上调用的是 <code>createAppAPI</code> 返回的函数。</p> <p><code>createAppAPI</code>执行完成返回 app 实例。</p></li> <li><p>index.html 在创建好 app 后接着调用 <code>mount</code> 进行挂载，<code>mount</code> 的实现在 <code>createAppAPI</code> 内部。</p> <p><code>mount</code> 执行时会调用 <code>render</code>函数，该 <code>render</code> 在 <code>baseCreateRenderer</code> 传入。</p></li> <li><p><code>render</code> 则开始 <code>patch</code> 进行渲染，<code>patch</code> 内部会进行递归渲染子节点。</p></li></ol> <p>以上就是 Vue3 的 createApp 和 mount 的大致流程。至于第一步为什么需要经过 <code>ensureRenderer</code> 和 <code>baseCreateRenderer</code>？</p> <p><code>baseCreateRenderer</code> 主要是平台无关的逻辑处理，存放在 runtime-core 中。</p> <p>当 <code>patch</code> 的时候需要操作 dom，则会调用外部传入的方法进行操作，这样就可以更方便实现跨端。</p> <p><code>ensureRenderer</code> 存放在 runtime-dom 中，主要为 <code>baseCreateRenderer</code> 提供一系列 dom 操作的函数。</p> <p>假如我们要自定义渲染器，那么只需要实现<code>ensureRenderer</code> 即可。而不是像 Vue2 需要 fork 一份，大大提高了 Vue3 的应用范围。</p> <hr> <p>好了，这篇文章就水到这里吧。如有错误的地方，希望还能在评论区指出，感谢！</p> <p>下篇文章将解析 Vue3 的响应式原理，如果有兴趣的话别忘了关注我呀，我们一起学习、进步。</p></div> <footer class="page-edit" style="display:none;"><!----> <div class="last-updated"><span class="prefix">更新于:: </span> <span class="time">8/26/2021, 3:26:59 PM</span></div></footer> <!----> <!----></main> <!----> <div class="comments-wrapper" data-v-4698c43e><div class="valine-wrapper"><div id="valine"></div></div></div></div></div></div></div></div><div class="global-ui"><div class="back-to-ceiling" style="right:1rem;bottom:6rem;width:2.5rem;height:2.5rem;border-radius:.25rem;line-height:2.5rem;display:none;" data-v-44bd5a18 data-v-44bd5a18><svg t="1574745035067" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="5404" class="icon" data-v-44bd5a18><path d="M526.60727968 10.90185116a27.675 27.675 0 0 0-29.21455937 0c-131.36607665 82.28402758-218.69155461 228.01873535-218.69155402 394.07834331a462.20625001 462.20625001 0 0 0 5.36959153 69.94390903c1.00431239 6.55289093-0.34802892 13.13561351-3.76865779 18.80351572-32.63518765 54.11355614-51.75690182 118.55860487-51.7569018 187.94566865a371.06718723 371.06718723 0 0 0 11.50484808 91.98906777c6.53300375 25.50556257 41.68394495 28.14064038 52.69160883 4.22606766 17.37162448-37.73630017 42.14135425-72.50938081 72.80769204-103.21549295 2.18761121 3.04276886 4.15646224 6.24463696 6.40373557 9.22774369a1871.4375 1871.4375 0 0 0 140.04691725 5.34970492 1866.36093723 1866.36093723 0 0 0 140.04691723-5.34970492c2.24727335-2.98310674 4.21612437-6.18497483 6.3937923-9.2178004 30.66633723 30.70611158 55.4360664 65.4791928 72.80769147 103.21549355 11.00766384 23.91457269 46.15860503 21.27949489 52.69160879-4.22606768a371.15156223 371.15156223 0 0 0 11.514792-91.99901164c0-69.36717486-19.13165746-133.82216804-51.75690182-187.92578088-3.42062944-5.66790279-4.76302748-12.26056868-3.76865837-18.80351632a462.20625001 462.20625001 0 0 0 5.36959269-69.943909c-0.00994388-166.08943902-87.32547796-311.81420293-218.6915546-394.09823051zM605.93803103 357.87693858a93.93749974 93.93749974 0 1 1-187.89594924 6.1e-7 93.93749974 93.93749974 0 0 1 187.89594924-6.1e-7z" p-id="5405" data-v-44bd5a18></path><path d="M429.50777625 765.63860547C429.50777625 803.39355007 466.44236686 1000.39046097 512.00932183 1000.39046097c45.56695499 0 82.4922232-197.00623328 82.5015456-234.7518555 0-37.75494459-36.9345906-68.35043303-82.4922232-68.34111062-45.57627738-0.00932239-82.52019037 30.59548842-82.51086798 68.34111062z" p-id="5406" data-v-44bd5a18></path></svg></div><div class="ad-wrap is-detail"><div class="_1pv6g5n8gf7"></div> <div class="_kro7189133e"></div></div><!----></div></div>
+    <script src="/assets/js/app.cc9ea677.js" defer></script><script src="/assets/js/3.590e791e.js" defer></script><script src="/assets/js/1.326f0c13.js" defer></script><script src="/assets/js/35.e1003365.js" defer></script><script src="/assets/js/9.2501c995.js" defer></script><script src="/assets/js/10.a9f4d64d.js" defer></script>
+  </body>
+</html>
